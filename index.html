@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医疗健康多Agent</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- highlight.js CSS (使用字节跳动静态资源公共库) -->
+    <link rel="stylesheet" href="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/highlight.js/11.4.0/styles/atom-one-dark.min.css">
+    <!-- 使用字节跳动静态资源公共库加载 marked.js 用于 Markdown 解析 -->
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/marked/4.0.0/marked.min.js"></script>
+    <!-- 使用字节跳动静态资源公共库加载 highlight.js -->
+    <script src="https://lf26-cdn-tos.bytecdntp.com/cdn/expire-1-M/highlight.js/11.4.0/highlight.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <!-- 导航模块 -->
+            <div class="nav-section">
+                <div class="nav-item" data-section="chat">
+                    <img src="image/bot-message-square.svg" alt="对话" class="nav-icon">
+                    <span>对话</span>
+                </div>
+                <div class="nav-item" data-section="intro">
+                    <img src="image/bot.svg" alt="项目介绍" class="nav-icon">
+                    <span>项目介绍</span>
+                </div>
+                <div class="nav-item" data-section="prompts">
+                    <img src="image/message-square.svg" alt="提示词仓库" class="nav-icon">
+                    <span>提示词仓库</span>
+                </div>
+            </div>
+            
+            <!-- 分隔线 -->
+            <div class="sidebar-divider"></div>
+            
+            <button id="new-chat-button">+ 新对话</button>
+            
+            <!-- 历史记录标题添加图标 -->
+            <div class="history-header">
+                <img src="image/history.svg" alt="历史" class="header-small-icon">
+                <h2>历史记录</h2>
+            </div>
+            
+            <ul id="history-list">
+                <!-- History items will be populated here -->
+            </ul>
+        </div>
+        
+        <!-- 主内容区域 -->
+        <div class="main-chat" id="section-chat">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="header-content">
+                        <img src="image/briefcase-medical.svg" alt="Medical" class="header-icon">
+                        <h1>医疗健康多Agent</h1>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div id="message-list"></div>
+                </div>
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <!-- Hidden file input -->
+                        <input type="file" id="file-input" accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png" style="display: none;">
+                        <!-- 修改位置：附件按钮在左侧 -->
+                        <button id="attachment-button" class="input-action-button" title="添加附件">
+                            <img src="image/paperclip.svg" alt="Attach">
+                        </button>
+                        <!-- 输入框在中间 -->
+                        <textarea id="user-input" placeholder="输入你的问题... (Shift+Enter 换行)" rows="1"></textarea>
+                        <!-- 发送按钮在右侧 -->
+                        <button id="send-button" class="input-action-button" title="发送">
+                            <img src="image/send.svg" alt="Send">
+                        </button>
+                    </div>
+                    <!-- 显示附件预览区 -->
+                    <div id="attachment-preview" class="attachment-preview"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 项目介绍区域 -->
+        <div class="main-section" id="section-intro" style="display: none;">
+            <div class="section-container">
+                <div class="section-header">
+                    <div class="header-content">
+                        <img src="image/bot.svg" alt="介绍" class="header-icon">
+                        <h1>项目介绍</h1>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="content-wrapper">
+                        <!-- 整体项目介绍 -->
+                        <div class="intro-hero">
+                            <div class="intro-logo-container">
+                                <img src="image/icon.jpg" alt="医疗健康多Agent" class="intro-logo">
+                            </div>
+                            <div class="intro-main">
+                                <h1>医疗健康多Agent</h1>
+                                <p class="intro-description">
+                                    医疗健康多Agent由扣子平台的多Agent架构自主搭建而成，拥有5个子Agent——医生Agent，医学健康学术Agent，医学健康知识科普Agent，健康计划助手Agent，提示词优化Agent。提供在线病情诊断、健康科普、学术研究和个性化健康计划服务，并能优化您的提问。
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Agent介绍标题 -->
+                        <h2 class="agents-title">子Agent介绍</h2>
+                        
+                        <!-- Agent卡片容器 -->
+                        <div class="agent-cards">
+                            <!-- 医生Agent -->
+                            <div class="agent-card">
+                                <div class="agent-card-header">
+                                    <img src="image/stethoscope.svg" alt="医生" class="agent-intro-icon">
+                                    <h3>医生Agent</h3>
+                                </div>
+                                <div class="agent-card-content">
+                                    <p>根据用户输入病情，进行线上看病诊断，可以帮助解决全球医疗资源不平衡的问题。</p>
+                                </div>
+                            </div>
+
+                            <!-- 医学健康学术Agent -->
+                            <div class="agent-card">
+                                <div class="agent-card-header">
+                                    <img src="image/microscope.svg" alt="学术" class="agent-intro-icon">
+                                    <h3>医学健康学术Agent</h3>
+                                </div>
+                                <div class="agent-card-content">
+                                    <p>根据实际的权威数据和文件，为你撰写医疗健康方面的报告，并且能生成对应的word文档。</p>
+                                </div>
+                            </div>
+
+                            <!-- 医学知识科普Agent -->
+                            <div class="agent-card">
+                                <div class="agent-card-header">
+                                    <img src="image/scroll-text.svg" alt="科普" class="agent-intro-icon">
+                                    <h3>医学知识科普Agent</h3>
+                                </div>
+                                <div class="agent-card-content">
+                                    <p>科普医疗健康方面知识，并且能生成知识科普和思维导图辅助用户理解。</p>
+                                </div>
+                            </div>
+
+                            <!-- 健康计划助手Agent -->
+                            <div class="agent-card">
+                                <div class="agent-card-header">
+                                    <img src="image/list.svg" alt="计划" class="agent-intro-icon">
+                                    <h3>健康计划助手Agent</h3>
+                                </div>
+                                <div class="agent-card-content">
+                                    <p>根据用户需求生成个性化健康计划(如运动，减肥，健身，饮食)，并生成一个对应的html可交互计划表。</p>
+                                </div>
+                            </div>
+
+                            <!-- 提示词优化Agent -->
+                            <div class="agent-card">
+                                <div class="agent-card-header">
+                                    <img src="image/message-square.svg" alt="优化" class="agent-intro-icon">
+                                    <h3>提示词优化Agent</h3>
+                                </div>
+                                <div class="agent-card-content">
+                                    <p>针对其他几个子Agent对提示词进行优化，减少写提示词的时间，可以降低应用的整体使用门槛。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 提示词仓库区域 -->
+        <div class="main-section" id="section-prompts" style="display: none;">
+            <div class="section-container">
+                <div class="section-header">
+                    <div class="header-content">
+                        <img src="image/message-square.svg" alt="提示词" class="header-icon">
+                        <h1>提示词仓库</h1>
+                    </div>
+                </div>
+                <div class="section-content">
+                    <div class="content-wrapper">
+                        <div class="prompt-cards">
+                            <!-- 医生Agent -->
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/stethoscope.svg" alt="医生" class="agent-icon">
+                                        <span>医生Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>给我看病，头痛恶心肌肉痛关节痛颈部淋巴结疼痛怎么回事啊?</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="给我看病，头痛恶心肌肉痛关节痛颈部淋巴结疼痛怎么回事啊?">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/stethoscope.svg" alt="医生" class="agent-icon">
+                                        <span>医生Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>给我看病，感冒一周没好鼻塞干呕是不是禽流感？感冒有5。6天没好鼻塞干呕有轻微咳嗽是不是禽流感没有接触过禽类</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="给我看病，感冒一周没好鼻塞干呕是不是禽流感？感冒有5。6天没好鼻塞干呕有轻微咳嗽是不是禽流感没有接触过禽类">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/stethoscope.svg" alt="医生" class="agent-icon">
+                                        <span>医生Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>给我看病，我是手脚上有小的水泡还痒的厉害，并有角化脱皮怎么治？谢谢</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="给我看病，我是手脚上有小的水泡还痒的厉害，并有角化脱皮怎么治？谢谢">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 医学健康学术Agent -->
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/microscope.svg" alt="学术" class="agent-icon">
+                                        <span>医学健康学术Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>生成一篇关于中国乡村和城市医疗资源分配问题的医学报告，要有现实农村和城市的医疗相关数据作为依据。</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="生成一篇关于中国乡村和城市医疗资源分配问题的医学报告，要有现实农村和城市的医疗相关数据作为依据。">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/microscope.svg" alt="学术" class="agent-icon">
+                                        <span>医学健康学术Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>比较中国与越南、哈萨克斯坦在过去五年（如有数据）的婴儿死亡率和人均医疗卫生支出数据。</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="比较中国与越南、哈萨克斯坦在过去五年（如有数据）的婴儿死亡率和人均医疗卫生支出数据。">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/microscope.svg" alt="学术" class="agent-icon">
+                                        <span>医学健康学术Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>检索中国近年来（例如过去十年）2型糖尿病发病率和患病率的变化趋势及相关研究。</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="检索中国近年来（例如过去十年）2型糖尿病发病率和患病率的变化趋势及相关研究。">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 医学健康知识科普Agent -->
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/scroll-text.svg" alt="科普" class="agent-icon">
+                                        <span>医学健康知识科普Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>给我科普健康饮食有哪些原则</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="给我科普健康饮食有哪些原则">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/scroll-text.svg" alt="科普" class="agent-icon">
+                                        <span>医学健康知识科普Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>讲讲什么是过敏性鼻炎，给我科普一下</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="讲讲什么是过敏性鼻炎，给我科普一下">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/scroll-text.svg" alt="科普" class="agent-icon">
+                                        <span>医学健康知识科普Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>给我科普怎么预防流感</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="给我科普怎么预防流感">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 健康计划助手Agent -->
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/list.svg" alt="计划" class="agent-icon">
+                                        <span>健康计划助手Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>我想养成更健康的习惯。给我建议，如每天的作息时间、简单的运动、还有饮食，先坚持一个月看看。</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="我想养成更健康的习惯。给我建议，如每天的作息时间、简单的运动、还有饮食，先坚持一个月看看。">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/list.svg" alt="计划" class="agent-icon">
+                                        <span>健康计划助手Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>我是一名需要长时间坐着工作的程序员，经常感觉腰背酸痛。想制定一个简单的办公室拉伸和下班后的放松运动计划，帮助缓解不适。每天大概能花15-20分钟。</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="我是一名需要长时间坐着工作的程序员，经常感觉腰背酸痛。想制定一个简单的办公室拉伸和下班后的放松运动计划，帮助缓解不适。每天大概能花15-20分钟。">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/list.svg" alt="计划" class="agent-icon">
+                                        <span>健康计划助手Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>我需要一个增肌计划，主要想练胸肌和背肌。我可以每周去健身房4次，请帮我安排力量训练内容。另外，请给我一些适合增肌期的高蛋白饮食建议或原则。计划持续6周。</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="我需要一个增肌计划，主要想练胸肌和背肌。我可以每周去健身房4次，请帮我安排力量训练内容。另外，请给我一些适合增肌期的高蛋白饮食建议或原则。计划持续6周。">使用此提示词</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 提示词优化Agent -->
+                            <div class="prompt-card">
+                                <div class="prompt-card-header">
+                                    <div class="agent-badge">
+                                        <img src="image/message-square.svg" alt="优化" class="agent-icon">
+                                        <span>提示词优化Agent</span>
+                                    </div>
+                                    <!-- 添加复制按钮 -->
+                                    <button class="copy-prompt-btn" title="复制提示词">
+                                        <img src="image/copy.svg" alt="复制">
+                                    </button>
+                                </div>
+                                <div class="prompt-card-content">
+                                    <p>帮我优化这个提示词：帮我制定运动计划。</p>
+                                </div>
+                                <div class="prompt-card-footer">
+                                    <button class="use-prompt-btn" data-prompt="帮我优化这个提示词：帮我制定运动计划。">使用此提示词</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
