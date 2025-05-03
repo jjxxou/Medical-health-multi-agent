@@ -449,5 +449,34 @@
     </div>
 
     <script src="script.js"></script>
+    
+    <!-- 图片预览模态框 -->
+    <div id="image-preview-modal" class="image-preview-modal">
+        <div class="image-preview-container">
+            <div class="image-preview-toolbar">
+                <button id="zoom-in-btn" class="preview-btn" title="放大">
+                    <img src="image/zoom-in.svg" alt="放大">
+                </button>
+                <button id="zoom-out-btn" class="preview-btn" title="缩小">
+                    <img src="image/zoom-out.svg" alt="缩小">
+                </button>
+                <button id="rotate-left-btn" class="preview-btn" title="向左旋转">
+                    <img src="image/rotate-ccw.svg" alt="向左旋转">
+                </button>
+                <button id="rotate-right-btn" class="preview-btn" title="向右旋转">
+                    <img src="image/rotate-cw.svg" alt="向右旋转">
+                </button>
+                <a id="download-btn" class="preview-btn" download="image.jpg" title="下载">
+                    <img src="image/download.svg" alt="下载">
+                </a>
+                <button id="close-preview-btn" class="preview-btn" title="关闭">
+                    <img src="image/x.svg" alt="关闭">
+                </button>
+            </div>
+            <div class="image-preview-content">
+                <img id="preview-image" src="" alt="预览图片">
+            </div>
+        </div>
+    </div>
 </body>
 </html>

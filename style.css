@@ -344,6 +344,8 @@ body::before {
     margin-right: 10px;
     filter: invert(40%) sepia(20%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(85%); /* 蓝灰色 */
     transition: filter 0.3s ease, transform 0.3s ease;
+    border-radius: 8px;
+    transition: none;
 }
 
 .nav-item:hover .nav-icon {
@@ -403,6 +405,8 @@ body::before {
     margin: 0;
     overflow-y: auto;
     flex-grow: 1;
+    overflow-x: hidden;
+    white-space: nowrap;
 }
 
 #history-list li {
@@ -715,10 +719,11 @@ body::before {
     opacity: 0.7;
 }
 
+/* 修复图标在悬停框中的居中问题 */
 .input-action-button {
     background: none;
     border: none;
-    padding: 8px;
+    padding: 0;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -761,11 +766,7 @@ body::before {
     filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%) opacity(0.8);
     transition: all 0.3s ease;
     z-index: 2;
-}
-
-.input-action-button:hover img {
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%) opacity(1);
-    transform: scale(1.1);
+    display: block; /* 确保图像作为块级元素 */
 }
 
 #send-button:disabled img,
@@ -1122,11 +1123,11 @@ body::before {
 /* 代码块顶部按钮栏 */
 .code-buttons-container {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
 }
 
-/* 复制代码按钮和预览按钮共用样式 */
+/* 复制代码按钮和预览按钮共用样式 - 修复对齐和图标显示问题 */
 .copy-code-button, .preview-html-button {
     display: flex;
     align-items: center;
@@ -1136,8 +1137,9 @@ body::before {
     cursor: pointer;
     padding: 0;
     margin: 0;
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -1145,17 +1147,17 @@ body::before {
 .copy-code-button img, .preview-html-button img {
     width: 18px;
     height: 18px;
-    opacity: 0.6;
+    opacity: 0.7;
     transition: all 0.3s ease;
+    pointer-events: none; /* 防止图标干扰点击事件 */
 }
 
 .copy-code-button:hover, .preview-html-button:hover {
-    transform: translateY(-1px);
+    background-color: rgba(33, 150, 243, 0.1);
 }
 
 .copy-code-button:hover img, .preview-html-button:hover img {
     opacity: 1;
-    transform: scale(1.1);
 }
 
 /* --- HTML预览弹窗样式 --- */
@@ -1648,4 +1650,118 @@ body::before {
 
 .agent-card:hover .agent-card-content p {
     transform: translateX(5px);
+}
+
+/* --- 图片预览模态框样式 --- */
+.image-preview-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85); /* 深色背景增加对比度 */
+    backdrop-filter: blur(5px);
+    display: none; /* 默认隐藏 */
+    align-items: center;
+    justify-content: center;
+    z-index: 1001; /* 确保在其他元素上方 */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.image-preview-modal.active {
+    display: flex;
+    opacity: 1;
+}
+
+.image-preview-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 8px;
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
+}
+
+.image-preview-toolbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    background-color: rgba(20, 20, 20, 0.8);
+    gap: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.preview-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.preview-btn img {
+    width: 24px;
+    height: 24px;
+    filter: invert(1); /* 使SVG图标变为白色 */
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.preview-btn:hover img {
+    opacity: 1;
+}
+
+#download-btn {
+    text-decoration: none;
+    color: white;
+}
+
+.image-preview-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    max-height: calc(90vh - 70px); /* 减去工具栏的高度 */
+    overflow: hidden;
+}
+
+#preview-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    transition: transform 0.2s ease;
+    cursor: move; /* 表明图片可以移动 */
+}
+
+/* 为移动设备优化 */
+@media (max-width: 768px) {
+    .image-preview-toolbar {
+        padding: 8px;
+        gap: 8px;
+    }
+    
+    .preview-btn {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .preview-btn img {
+        width: 20px;
+        height: 20px;
+    }
 }

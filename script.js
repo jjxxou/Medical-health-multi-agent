@@ -32,6 +32,20 @@ let currentConversationId = null; // ID of the currently active conversation
 let selectedFile = null; // Store the currently selected file
 let currentSection = 'chat'; // 当前激活的部分
 
+// --- 图片预览相关变量 ---
+let previewModal = document.getElementById('image-preview-modal');
+let previewImage = document.getElementById('preview-image');
+let zoomInBtn = document.getElementById('zoom-in-btn');
+let zoomOutBtn = document.getElementById('zoom-out-btn');
+let rotateLeftBtn = document.getElementById('rotate-left-btn');
+let rotateRightBtn = document.getElementById('rotate-right-btn');
+let downloadBtn = document.getElementById('download-btn');
+let closePreviewBtn = document.getElementById('close-preview-btn');
+let currentScale = 1;
+let currentRotation = 0;
+let isDragging = false;
+let startX, startY, translateX = 0, translateY = 0;
+
 // Function to save history to localStorage
 function saveChatHistory() {
     try {
@@ -768,6 +782,180 @@ function setupHtmlPreview(messageBubble) {
     });
 }
 
+// --- 图片预览功能实现 ---
+function setupImagePreview() {
+    // 给消息区域内所有图片添加点击事件
+    messageList.addEventListener('click', (e) => {
+        // 检查点击的是否为图片元素
+        if (e.target.tagName === 'IMG' && e.target.closest('.message-bubble')) {
+            // 排除功能图标
+            if (!e.target.closest('.preview-btn') && 
+                !e.target.closest('.copy-code-button') && 
+                !e.target.closest('.preview-html-button') &&
+                !e.target.parentElement.classList.contains('copy-message-button') &&
+                !e.target.parentElement.classList.contains('bot-icon')) {
+                
+                // 打开预览
+                openImagePreview(e.target.src);
+            }
+        }
+    });
+
+    // 关闭预览按钮事件
+    closePreviewBtn.addEventListener('click', closeImagePreview);
+
+    // 缩放功能
+    zoomInBtn.addEventListener('click', () => {
+        if (currentScale < 3) { // 限制最大放大倍数
+            currentScale += 0.25;
+            updateImageTransform();
+        }
+    });
+
+    zoomOutBtn.addEventListener('click', () => {
+        if (currentScale > 0.5) { // 限制最小缩小倍数
+            currentScale -= 0.25;
+            updateImageTransform();
+        }
+    });
+
+    // 旋转功能
+    rotateLeftBtn.addEventListener('click', () => {
+        currentRotation -= 90;
+        updateImageTransform();
+    });
+
+    rotateRightBtn.addEventListener('click', () => {
+        currentRotation += 90;
+        updateImageTransform();
+    });
+
+    // 下载按钮功能
+    downloadBtn.addEventListener('click', (e) => {
+        if (previewImage.src) {
+            downloadBtn.href = previewImage.src;
+            let fileName = previewImage.src.split('/').pop();
+            downloadBtn.download = fileName || 'image.jpg';
+        } else {
+            e.preventDefault();
+        }
+    });
+
+    // 支持键盘操作
+    document.addEventListener('keydown', (e) => {
+        if (!previewModal.classList.contains('active')) return;
+        
+        switch(e.key) {
+            case 'Escape':
+                closeImagePreview();
+                break;
+            case '+':
+            case '=':
+                if (currentScale < 3) {
+                    currentScale += 0.25;
+                    updateImageTransform();
+                }
+                break;
+            case '-':
+                if (currentScale > 0.5) {
+                    currentScale -= 0.25;
+                    updateImageTransform();
+                }
+                break;
+            case 'ArrowLeft':
+                if (e.ctrlKey) {
+                    currentRotation -= 90;
+                    updateImageTransform();
+                }
+                break;
+            case 'ArrowRight':
+                if (e.ctrlKey) {
+                    currentRotation += 90;
+                    updateImageTransform();
+                }
+                break;
+        }
+    });
+
+    // 支持拖拽移动图片
+    previewImage.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX - translateX;
+        startY = e.clientY - translateY;
+        previewImage.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        translateX = e.clientX - startX;
+        translateY = e.clientY - startY;
+        updateImageTransform();
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        previewImage.style.cursor = 'move';
+    });
+
+    // 双击重置缩放和位置
+    previewImage.addEventListener('dblclick', () => {
+        currentScale = 1;
+        currentRotation = 0;
+        translateX = 0;
+        translateY = 0;
+        updateImageTransform();
+    });
+
+    // 支持鼠标滚轮缩放
+    previewImage.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0 && currentScale < 3) {
+            currentScale += 0.1;
+        } else if (e.deltaY > 0 && currentScale > 0.5) {
+            currentScale -= 0.1;
+        }
+        updateImageTransform();
+    });
+
+    // 点击模态框背景关闭预览
+    previewModal.addEventListener('click', (e) => {
+        if (e.target === previewModal) {
+            closeImagePreview();
+        }
+    });
+}
+
+function openImagePreview(src) {
+    // 重置变换参数
+    currentScale = 1;
+    currentRotation = 0;
+    translateX = 0;
+    translateY = 0;
+    
+    // 设置图片源
+    previewImage.src = src;
+    
+    // 显示模态框
+    previewModal.classList.add('active');
+    
+    // 防止页面滚动
+    document.body.style.overflow = 'hidden';
+    
+    // 更新下载按钮
+    downloadBtn.href = src;
+    let fileName = src.split('/').pop();
+    downloadBtn.download = fileName || 'image.jpg';
+}
+
+function closeImagePreview() {
+    previewModal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function updateImageTransform() {
+    previewImage.style.transform = `translate(${translateX}px, ${translateY}px) rotate(${currentRotation}deg) scale(${currentScale})`;
+}
+
 // Helper functions
 function generateId() {
     return `conv_${Date.now()}`;
@@ -1400,13 +1588,16 @@ function initializeApp() {
     // 添加水波纹样式
     addRippleStyle();
     
+    // 初始化图片预览功能
+    setupImagePreview();
+    
     // 初始化动画效果
     initAnimeEffects();
     
     // 初始化水波纹效果
     setupWaterRippleEffects();
     
-    console.log("App initialized with animations and water ripple effects.");
+    console.log("App initialized with image preview capability.");
 }
 
 // Run initialization when the DOM is ready
