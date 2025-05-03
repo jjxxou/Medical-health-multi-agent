@@ -494,8 +494,34 @@ function addMessage(sender, text, save = true) {
 
     copyMessageButton.addEventListener('click', (e) => {
         e.stopPropagation();
-        // Get text content from the bubble
-        const textToCopy = messageBubble.innerText;
+        // 保存原始消息文本到变量（用于机器人消息的 Markdown 格式）
+        let textToCopy;
+        
+        if (sender === 'bot') {
+            // 对于机器人消息，获取原始的 Markdown 文本
+            // 从消息历史记录中查找对应的文本
+            if (chatHistory[currentConversationId]) {
+                // 找到当前消息在DOM中的索引位置
+                const allMessages = Array.from(messageList.querySelectorAll('.message'));
+                const currentMsgIndex = allMessages.indexOf(messageWrapper);
+                
+                // 如果能在历史记录中找到对应的消息，使用原始 Markdown
+                if (chatHistory[currentConversationId].messages && 
+                    chatHistory[currentConversationId].messages[currentMsgIndex]) {
+                    textToCopy = chatHistory[currentConversationId].messages[currentMsgIndex].text;
+                } else {
+                    // 回退方案：使用渲染后的文本
+                    textToCopy = messageBubble.innerText;
+                }
+            } else {
+                // 回退方案：使用渲染后的文本
+                textToCopy = messageBubble.innerText;
+            }
+        } else {
+            // 用户消息直接使用文本内容
+            textToCopy = messageBubble.innerText;
+        }
+        
         navigator.clipboard.writeText(textToCopy).then(() => {
             // 隐藏原始图标
             const originalDisplay = copyImg.style.display;
