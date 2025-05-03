@@ -257,6 +257,9 @@ function addMessage(sender, text, save = true) {
     const messageWrapper = document.createElement('div'); // Outer wrapper for flex alignment (icon + content)
     messageWrapper.classList.add('message', sender);
 
+    // 将原始文本作为数据属性存储在消息元素上（用于后续复制markdown）
+    messageWrapper.dataset.originalText = text;
+
     // Add Bot Icon
     if (sender === 'bot') {
         const icon = document.createElement('img');
@@ -454,7 +457,70 @@ function addMessage(sender, text, save = true) {
             
             // 添加复制按钮到容器
             buttonsContainer.appendChild(copyCodeButton);
-            
+
+            // 在代码块处理部分，复制按钮之后添加下载按钮
+            const downloadCodeButton = document.createElement('button');
+            downloadCodeButton.className = 'download-code-button';
+            downloadCodeButton.title = '下载代码';
+
+            // 使用下载SVG图标
+            const downloadIcon = document.createElement('img');
+            downloadIcon.src = 'image/download.svg';
+            downloadIcon.alt = '下载';
+            downloadCodeButton.appendChild(downloadIcon);
+
+            downloadCodeButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const codeToDownload = codeElement ? codeElement.innerText : pre.textContent;
+                
+                // 确定文件扩展名
+                let fileExt = 'txt';
+                if (codeType) {
+                    switch(codeType.toLowerCase()) {
+                        case 'javascript': case 'js': fileExt = 'js'; break;
+                        case 'html': fileExt = 'html'; break;
+                        case 'css': fileExt = 'css'; break;
+                        case 'python': case 'py': fileExt = 'py'; break;
+                        case 'java': fileExt = 'java'; break;
+                        case 'c': fileExt = 'c'; break;
+                        case 'cpp': case 'c++': fileExt = 'cpp'; break;
+                        case 'json': fileExt = 'json'; break;
+                        case 'xml': fileExt = 'xml'; break;
+                        case 'markdown': case 'md': fileExt = 'md'; break;
+                        // 其他语言可以继续添加
+                    }
+                }
+                
+                // 创建 Blob 和下载链接
+                const blob = new Blob([codeToDownload], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `code.${fileExt}`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                // 显示下载成功的反馈
+                const originalDisplay = downloadIcon.style.display;
+                downloadIcon.style.display = 'none';
+                
+                const successIndicator = document.createElement('span');
+                successIndicator.textContent = '✓';
+                successIndicator.style.color = 'var(--accent-blue-primary)';
+                successIndicator.style.fontSize = '16px';
+                downloadCodeButton.appendChild(successIndicator);
+                
+                setTimeout(() => {
+                    downloadCodeButton.removeChild(successIndicator);
+                    downloadIcon.style.display = originalDisplay;
+                }, 2000);
+            });
+
+            // 添加按钮到容器
+            buttonsContainer.appendChild(downloadCodeButton);
+
             // 将按钮容器添加到标题栏
             codeHeader.appendChild(buttonsContainer);
             
@@ -494,33 +560,8 @@ function addMessage(sender, text, save = true) {
 
     copyMessageButton.addEventListener('click', (e) => {
         e.stopPropagation();
-        // 保存原始消息文本到变量（用于机器人消息的 Markdown 格式）
-        let textToCopy;
-        
-        if (sender === 'bot') {
-            // 对于机器人消息，获取原始的 Markdown 文本
-            // 从消息历史记录中查找对应的文本
-            if (chatHistory[currentConversationId]) {
-                // 找到当前消息在DOM中的索引位置
-                const allMessages = Array.from(messageList.querySelectorAll('.message'));
-                const currentMsgIndex = allMessages.indexOf(messageWrapper);
-                
-                // 如果能在历史记录中找到对应的消息，使用原始 Markdown
-                if (chatHistory[currentConversationId].messages && 
-                    chatHistory[currentConversationId].messages[currentMsgIndex]) {
-                    textToCopy = chatHistory[currentConversationId].messages[currentMsgIndex].text;
-                } else {
-                    // 回退方案：使用渲染后的文本
-                    textToCopy = messageBubble.innerText;
-                }
-            } else {
-                // 回退方案：使用渲染后的文本
-                textToCopy = messageBubble.innerText;
-            }
-        } else {
-            // 用户消息直接使用文本内容
-            textToCopy = messageBubble.innerText;
-        }
+        // 获取消息的原始文本（从数据属性中）
+        const textToCopy = messageWrapper.dataset.originalText || messageBubble.innerText;
         
         navigator.clipboard.writeText(textToCopy).then(() => {
             // 隐藏原始图标
@@ -939,6 +980,62 @@ function setupImagePreview() {
     previewModal.addEventListener('click', (e) => {
         if (e.target === previewModal) {
             closeImagePreview();
+        }
+    });
+
+    // 为触摸设备添加支持
+    previewImage.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        startX = touch.clientX - translateX;
+        startY = touch.clientY - translateY;
+        e.preventDefault();
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        translateX = touch.clientX - startX;
+        translateY = touch.clientY - startY;
+        updateImageTransform();
+        e.preventDefault();
+    });
+
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+    
+    // 添加双指缩放支持
+    let initialDistance = 0;
+    
+    previewImage.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 2) {
+            initialDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    });
+    
+    previewImage.addEventListener('touchmove', (e) => {
+        if (e.touches.length === 2) {
+            const currentDistance = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            
+            if (initialDistance > 0) {
+                const scale = currentDistance / initialDistance;
+                
+                if (scale > 1 && currentScale < 3) {
+                    currentScale += 0.02;
+                    updateImageTransform();
+                } else if (scale < 1 && currentScale > 0.5) {
+                    currentScale -= 0.02;
+                    updateImageTransform();
+                }
+            }
+            e.preventDefault();
         }
     });
 }

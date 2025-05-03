@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="医疗健康多Agent系统 - 提供在线诊断、健康科普、学术研究和个性化健康计划服务">
+    <meta name="theme-color" content="#2c7bdc">
     <title>医疗健康多Agent</title>
     <link rel="stylesheet" href="style.css">
     <!-- highlight.js CSS (使用字节跳动静态资源公共库) -->
@@ -14,7 +16,7 @@
     <!-- 添加 anime.js 动画库 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 </head>
-<body>
+<body aria-live="polite">
     <!-- 添加水波纹动画容器 -->
     <div class="water-ripple-container">
         <div class="water-ripple"></div>
@@ -451,9 +453,11 @@
     <script src="script.js"></script>
     
     <!-- 图片预览模态框 -->
-    <div id="image-preview-modal" class="image-preview-modal">
+    <div id="image-preview-modal" class="image-preview-modal" role="dialog" aria-labelledby="preview-title" aria-modal="true">
         <div class="image-preview-container">
             <div class="image-preview-toolbar">
+                <!-- 添加隐藏标题用于屏幕阅读器 -->
+                <span id="preview-title" class="sr-only">图片预览</span>
                 <button id="zoom-in-btn" class="preview-btn" title="放大">
                     <img src="image/zoom-in.svg" alt="放大">
                 </button>
