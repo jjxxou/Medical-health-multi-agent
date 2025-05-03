@@ -788,16 +788,8 @@ function setupImagePreview() {
     messageList.addEventListener('click', (e) => {
         // 检查点击的是否为图片元素
         if (e.target.tagName === 'IMG' && e.target.closest('.message-bubble')) {
-            // 排除功能图标
-            if (!e.target.closest('.preview-btn') && 
-                !e.target.closest('.copy-code-button') && 
-                !e.target.closest('.preview-html-button') &&
-                !e.target.parentElement.classList.contains('copy-message-button') &&
-                !e.target.parentElement.classList.contains('bot-icon')) {
-                
-                // 打开预览
-                openImagePreview(e.target.src);
-            }
+            // 打开图片预览
+            openImagePreview(e.target.src);
         }
     });
 
@@ -844,8 +836,8 @@ function setupImagePreview() {
     // 支持键盘操作
     document.addEventListener('keydown', (e) => {
         if (!previewModal.classList.contains('active')) return;
-        
-        switch(e.key) {
+
+        switch (e.key) {
             case 'Escape':
                 closeImagePreview();
                 break;
@@ -925,6 +917,7 @@ function setupImagePreview() {
     });
 }
 
+// --- 图片预览相关函数 ---
 function openImagePreview(src) {
     // 重置变换参数
     currentScale = 1;
