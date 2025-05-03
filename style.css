@@ -1,14 +1,17 @@
 /* --- Global Styles & Variables --- */
 :root {
-    --light-bg-primary: #f0f8ff; /* 淡蓝色背景 */
-    --light-bg-secondary: #e1f5fe; /* 更淡的蓝色背景 */
-    --accent-blue-primary: #1976d2; /* 深蓝主色调 */
-    --accent-blue-secondary: #2196f3; /* 蓝色强调色 */
+    --light-bg-primary: #e6f2ff; /* 更淡蓝色背景 */
+    --light-bg-secondary: #c7e2ff; /* 稍深的淡蓝色背景 */
+    --accent-blue-primary: #2c7bdc; /* 更深蓝的主色调 - 匹配湖水 */
+    --accent-blue-secondary: #4a94f1; /* 蓝色强调色 - 匹配天空 */
+    --accent-blue-tertiary: #0a4da3; /* 更深的蓝色 - 匹配山脉轮廓 */
     --text-primary: #333333; /* 深灰文本 */
     --text-secondary: #5f6368; /* 中灰文本 */
-    --border-color: rgba(25, 118, 210, 0.2); /* 淡蓝色边框 */
-    --glow-color: rgba(33, 150, 243, 0.3); /* 微蓝色阴影 */
-    --shadow-color: rgba(0, 0, 0, 0.1); /* 淡阴影 */
+    --border-color: rgba(44, 123, 220, 0.25); /* 淡蓝色边框 */
+    --glow-color: rgba(74, 148, 241, 0.35); /* 微蓝色阴影 */
+    --shadow-color: rgba(10, 77, 163, 0.15); /* 淡阴影 */
+    --wood-color: #dda15e; /* 木栈道颜色 - 温暖对比色 */
+    --wood-color-dark: #bc6c25; /* 更深的木栈道颜色 */
 }
 
 html, body {
@@ -21,7 +24,7 @@ html, body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 添加背景图片 */
+/* 更改为蓝色湖泊背景图片 */
 body::before {
     content: '';
     position: fixed;
@@ -32,8 +35,103 @@ body::before {
     background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070');
     background-size: cover;
     background-position: center;
-    opacity: 0.15; /* 降低透明度使其作为淡背景 */
+    opacity: 0.2; /* 增加一点透明度使其更加明显 */
     z-index: -1;
+    animation: subtleZoom 60s infinite alternate ease-in-out;
+}
+
+/* 添加背景微缩放动画效果 */
+@keyframes subtleZoom {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.05);
+    }
+}
+
+/* 优化水波纹动画容器样式 - 添加更多细节 */
+.water-ripple-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0.7; /* 降低整体透明度使效果更微妙 */
+}
+
+/* 改进水波纹样式 */
+.water-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(
+        circle,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(193, 233, 252, 0.7) 20%,
+        rgba(104, 175, 241, 0.5) 40%,
+        rgba(44, 123, 220, 0.3) 60%,
+        rgba(255, 255, 255, 0) 75%
+    );
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+    will-change: transform, opacity, width, height, left, top;
+    filter: blur(2px); /* 添加轻微模糊效果增强水波感 */
+}
+
+.water-ripple.active {
+    animation: rippleEffect 4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* 改进水波纹动画效果，更加平滑自然 */
+@keyframes rippleEffect {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0.9;
+    }
+    40% {
+        opacity: 0.5;
+    }
+    75% {
+        opacity: 0.2;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
+/* 添加点击效果水波纹 */
+.ripple-effect {
+    position: absolute;
+    background: radial-gradient(
+        circle, 
+        rgba(193, 233, 252, 0.8) 0%, 
+        rgba(104, 175, 241, 0.6) 40%, 
+        rgba(44, 123, 220, 0.1) 80%, 
+        rgba(255, 255, 255, 0) 100%
+    );
+    border-radius: 50%;
+    pointer-events: none;
+    transform: scale(0);
+    animation: ripple 0.8s ease-out;
+    z-index: 0;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(2.5);
+        opacity: 0;
+    }
+}
+
+/* 为可点击元素添加水波纹触发效果 */
+.nav-item, button, .agent-card, .prompt-card, .use-prompt-btn, .copy-prompt-btn {
+    position: relative;
+    overflow: hidden; /* 确保波纹效果被容器裁切 */
 }
 
 /* --- Scrollbar Styles --- */
@@ -57,13 +155,80 @@ body::before {
 .app-container {
     display: flex;
     height: 100vh;
-    background-color: rgba(255, 255, 255, 0.8); /* 半透明白色背景 */
+    background-color: rgba(255, 255, 255, 0.7); /* 调整为更透明 */
+    backdrop-filter: blur(5px); /* 添加模糊效果使背景更清晰 */
+}
+
+/* 添加水波纹背景动画 */
+.app-container::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        135deg,
+        rgba(193, 233, 252, 0.2) 0%,
+        rgba(104, 175, 241, 0.05) 60%,
+        rgba(74, 148, 241, 0.1) 100%
+    );
+    z-index: -2;
+    pointer-events: none;
+}
+
+.app-container::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 10% 20%, rgba(193, 233, 252, 0.3) 0%, transparent 30%),
+        radial-gradient(circle at 80% 50%, rgba(104, 175, 241, 0.2) 0%, transparent 40%),
+        radial-gradient(circle at 30% 70%, rgba(74, 148, 241, 0.2) 0%, transparent 35%);
+    animation: backgroundShimmer 15s ease-in-out infinite alternate;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes backgroundShimmer {
+    0% {
+        background-position: 0% 0%, 0% 0%, 0% 0%;
+    }
+    50% {
+        background-position: 5% 10%, -5% 10%, 3% -10%;
+    }
+    100% {
+        background-position: -5% -10%, 5% -10%, -3% 10%;
+    }
+}
+
+/* 添加水波纹效果 */
+.water-ripple {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+    transform: scale(0);
+    opacity: 0;
 }
 
 /* --- Sidebar Styles --- */
 .sidebar {
     width: 260px;
-    background-color: rgba(255, 255, 255, 0.9); /* 不透明白色背景 */
+    background-color: rgba(255, 255, 255, 0.85); /* 更透明一点 */
     color: var(--text-primary);
     padding: 15px;
     display: flex;
@@ -74,6 +239,20 @@ body::before {
     box-shadow: 2px 0 10px var(--shadow-color);
     flex-shrink: 0;
     z-index: 10;
+    transition: all 0.3s ease;
+}
+
+/* 波浪装饰元素 - 侧边栏顶部 */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 8px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary), var(--accent-blue-tertiary));
+    border-radius: 0 0 8px 8px;
+    opacity: 0.8;
 }
 
 /* 历史记录标题样式 */
@@ -98,7 +277,7 @@ body::before {
 .header-small-icon {
     width: 18px;
     height: 18px;
-    filter: invert(40%) sepia(30%) saturate(2000%) hue-rotate(190deg) brightness(90%) contrast(95%);
+    filter: invert(40%) sepia(30%) saturate(2000%) hue-rotate(210deg) brightness(90%) contrast(95%);
 }
 
 /* --- 导航模块样式 --- */
@@ -113,59 +292,109 @@ body::before {
     align-items: center;
     padding: 8px 10px;
     margin: 4px 0;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     color: var(--text-secondary);
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0;
+    background: linear-gradient(to right, var(--accent-blue-primary), var(--accent-blue-secondary));
+    transition: height 0.3s ease;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.nav-item:hover::after {
+    height: 100%;
 }
 
 .nav-item:hover {
-    background-color: rgba(33, 150, 243, 0.1);
     color: var(--accent-blue-primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(10, 77, 163, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nav-item.active {
-    background-color: rgba(33, 150, 243, 0.15);
+    background: rgba(33, 150, 243, 0.15);
     color: var(--accent-blue-primary);
     font-weight: 500;
+    box-shadow: 0 2px 4px rgba(10, 77, 163, 0.1);
+    transform: translateY(-2px);
+    animation: pulse 2s infinite;
+}
+
+.nav-item.active::after {
+    height: 100%;
+    opacity: 0.2;
 }
 
 .nav-icon {
     width: 20px;
     height: 20px;
     margin-right: 10px;
-    filter: invert(40%) sepia(20%) saturate(500%) hue-rotate(180deg) brightness(90%) contrast(85%); /* 蓝灰色 */
-    transition: filter 0.2s ease;
+    filter: invert(40%) sepia(20%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(85%); /* 蓝灰色 */
+    transition: filter 0.3s ease, transform 0.3s ease;
 }
 
-.nav-item:hover .nav-icon,
+.nav-item:hover .nav-icon {
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%); /* 深蓝色 */
+    transform: scale(1.1);
+}
+
 .nav-item.active .nav-icon {
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%); /* 深蓝色 */
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%); /* 深蓝色 */
 }
 
 .sidebar-divider {
     height: 1px;
-    background-color: var(--border-color);
+    background: linear-gradient(to right, transparent, var(--border-color), transparent);
     margin: 5px 0 15px 0;
 }
 
 #new-chat-button {
-    background-color: var(--accent-blue-primary);
+    background: linear-gradient(135deg, var(--accent-blue-primary), var(--accent-blue-secondary));
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     padding: 10px;
     text-align: center;
     cursor: pointer;
     font-size: 0.9em;
     margin-bottom: 15px;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.3s ease;
     font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+#new-chat-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.7s ease;
 }
 
 #new-chat-button:hover {
-    background-color: var(--accent-blue-secondary);
-    box-shadow: 0 0 10px var(--glow-color);
+    box-shadow: 0 4px 12px var(--glow-color);
+    transform: translateY(-2px);
+}
+
+#new-chat-button:hover::before {
+    left: 100%;
 }
 
 #history-list {
@@ -179,13 +408,13 @@ body::before {
 #history-list li {
     padding: 8px 10px;
     margin-bottom: 5px;
-    border-radius: 5px;
+    border-radius: 6px;
     cursor: pointer;
     font-size: 0.9em;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     position: relative;
     padding-right: 35px;
     border: 1px solid transparent;
@@ -206,6 +435,7 @@ body::before {
     background-color: rgba(33, 150, 243, 0.1);
     color: var(--text-primary);
     border-color: var(--border-color);
+    transform: translateX(2px);
 }
 
 #history-list li.active {
@@ -228,14 +458,15 @@ body::before {
     align-items: center;
     justify-content: center;
     opacity: 0;
-    transition: opacity 0.2s ease, background-color 0.2s ease;
+    transition: opacity 0.3s ease, background-color 0.3s ease, transform 0.3s ease;
 }
 
 .delete-history-button img {
     width: 16px;
     height: 16px;
     opacity: 0.7;
-    filter: invert(40%) sepia(20%) saturate(500%) hue-rotate(180deg) brightness(90%) contrast(85%);
+    filter: invert(40%) sepia(20%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(85%);
+    transition: filter 0.3s ease;
 }
 
 #history-list li:hover .delete-history-button {
@@ -245,11 +476,12 @@ body::before {
 
 .delete-history-button:hover {
     background-color: rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-50%) scale(1.1);
 }
 
 .delete-history-button:hover img {
     opacity: 1;
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%);
 }
 
 /* --- Main Chat Area Styles --- */
@@ -258,7 +490,7 @@ body::before {
     position: relative;
     overflow: hidden;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.75); /* 调整透明度使背景图更可见 */
 }
 
 /* --- Matching HTML structure where chat-container exists --- */
@@ -281,7 +513,8 @@ body::before {
     position: relative;
     overflow: hidden;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.85);
+    background-color: rgba(255, 255, 255, 0.75); /* 更透明 */
+    transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 .section-container {
@@ -309,6 +542,20 @@ body::before {
     flex-shrink: 0;
     z-index: 5;
     box-shadow: 0 2px 8px var(--shadow-color);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 标题栏装饰波浪效果 */
+.section-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary), var(--accent-blue-tertiary));
+    opacity: 0.7;
 }
 
 .section-content {
@@ -338,6 +585,20 @@ body::before {
     flex-shrink: 0;
     z-index: 5;
     box-shadow: 0 2px 8px var(--shadow-color);
+    position: relative;
+    overflow: hidden;
+}
+
+/* 聊天标题栏装饰波浪效果 */
+.chat-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary), var(--accent-blue-tertiary));
+    opacity: 0.7;
 }
 
 .header-content {
@@ -349,7 +610,7 @@ body::before {
 .header-icon {
     width: 28px;
     height: 28px;
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%);
 }
 
 .chat-header h1 {
@@ -358,6 +619,7 @@ body::before {
     font-weight: 500;
     letter-spacing: 1px;
     color: var(--accent-blue-primary);
+    position: relative;
 }
 
 .chat-messages {
@@ -366,6 +628,8 @@ body::before {
     background-color: transparent;
     padding: 25px;
     box-sizing: border-box;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(230, 242, 255, 0.5)); /* 渐变背景 */
+    scroll-behavior: smooth;
 }
 
 #message-list {
@@ -382,7 +646,7 @@ body::before {
     display: flex;
     flex-direction: column;
     padding: 10px 15px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.9);
     border-top: 1px solid var(--border-color);
     box-shadow: 0 -2px 10px var(--shadow-color);
     z-index: 5;
@@ -393,6 +657,30 @@ body::before {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     flex-shrink: 0;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 输入区域装饰元素 */
+.chat-input-area::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary), var(--accent-blue-tertiary));
+    opacity: 0.5;
+}
+
+.chat-input-area:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px var(--shadow-color);
+}
+
+.chat-input-area:focus-within::before {
+    opacity: 1;
 }
 
 /* 新增输入框包装器样式 */
@@ -419,6 +707,7 @@ body::before {
     color: var(--text-primary);
     caret-color: var(--accent-blue-primary);
     min-height: 24px;
+    transition: all 0.3s ease;
 }
 
 #user-input::placeholder {
@@ -437,23 +726,46 @@ body::before {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.input-action-button::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle, var(--accent-blue-secondary) 0%, transparent 70%);
+    opacity: 0;
+    transform: scale(0);
+    transition: all 0.5s ease;
 }
 
 .input-action-button:hover {
     background-color: rgba(33, 150, 243, 0.1);
+    transform: translateY(-2px);
+}
+
+.input-action-button:active::after {
+    opacity: 0.3;
+    transform: scale(1.5);
 }
 
 .input-action-button img {
     width: 20px;
     height: 20px;
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%) opacity(0.8);
-    transition: filter 0.2s ease;
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%) opacity(0.8);
+    transition: all 0.3s ease;
+    z-index: 2;
 }
 
 .input-action-button:hover img {
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%) opacity(1);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%) opacity(1);
+    transform: scale(1.1);
 }
 
 #send-button:disabled img,
@@ -465,6 +777,7 @@ body::before {
 #send-button:disabled:hover,
 #attachment-button:disabled:hover {
     background-color: transparent;
+    transform: none;
 }
 
 /* Attachment Preview Area */
@@ -486,16 +799,22 @@ body::before {
     display: flex;
     align-items: center;
     gap: 5px;
-    background-color: rgba(33, 150, 243, 0.1);
+    background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(33, 150, 243, 0.15));
     border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 4px 8px;
+    border-radius: 6px;
+    padding: 4px 10px;
+    transition: all 0.3s ease;
+}
+
+.attachment-preview .attachment-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px var(--shadow-color);
 }
 
 .attachment-item img {
     width: 16px;
     height: 16px;
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%) opacity(0.8);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%) opacity(0.8);
 }
 
 .attachment-preview span {
@@ -515,11 +834,13 @@ body::before {
     padding: 0 4px;
     line-height: 1;
     opacity: 0.7;
+    transition: all 0.3s ease;
 }
 
 .remove-attachment-button:hover {
     color: var(--accent-blue-primary);
     opacity: 1;
+    transform: scale(1.1);
 }
 
 /* --- Message Bubbles --- */
@@ -530,6 +851,45 @@ body::before {
     display: flex;
     align-items: flex-start;
     position: relative;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: messageFadeIn 0.5s forwards;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    overflow: hidden;
+}
+
+.message::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(to right, transparent, var(--accent-blue-primary), transparent);
+    opacity: 0;
+    transform: translateX(-100%);
+}
+
+.message.bot::after {
+    animation: lineProgress 1.5s ease forwards;
+}
+
+@keyframes lineProgress {
+    0% {
+        opacity: 0.7;
+        transform: translateX(-100%);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes messageFadeIn {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .message-content-wrapper {
@@ -547,7 +907,8 @@ body::before {
     position: relative;
     background-color: white;
     color: var(--text-primary);
-    box-shadow: 0 1px 5px var(--shadow-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: all 0.3s ease;
 }
 
 .message.user {
@@ -555,9 +916,23 @@ body::before {
 }
 
 .message.user .message-bubble {
-    background-color: #e3f2fd; /* 淡蓝色背景 */
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb); /* 蓝色渐变背景 */
     border-top-right-radius: 4px; /* 右上角尖角效果 */
     align-self: flex-end;
+    position: relative;
+}
+
+/* 用户消息气泡装饰 */
+.message.user .message-bubble::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-blue-secondary);
+    opacity: 0.4;
+    border-radius: 0 0 0 8px;
 }
 
 .message.bot {
@@ -569,16 +944,43 @@ body::before {
     background-color: white;
     border-top-left-radius: 4px; /* 左上角尖角效果 */
     align-self: flex-start;
+    position: relative;
+}
+
+/* 机器人消息气泡装饰 */
+.message.bot .message-bubble::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 8px;
+    background-color: var(--accent-blue-primary);
+    opacity: 0.4;
+    border-radius: 0 0 8px 0;
 }
 
 .bot-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     flex-shrink: 0;
     margin-top: 2px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 1px 3px var(--shadow-color);
+    border: 2px solid var(--accent-blue-primary);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    transition: all 0.3s ease;
+    animation: pulseIcon 2s infinite alternate;
+}
+
+@keyframes pulseIcon {
+    from {
+        transform: scale(1);
+        box-shadow: 0 2px 8px var(--shadow-color);
+    }
+    to {
+        transform: scale(1.05);
+        box-shadow: 0 4px 12px var(--glow-color);
+    }
 }
 
 .message.bot .message-bubble img {
@@ -588,6 +990,12 @@ body::before {
     border-radius: 8px;
     margin-top: 10px;
     border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.message.bot .message-bubble img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 /* --- Copy Button Below Message --- */
@@ -612,10 +1020,10 @@ body::before {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 5px;  /* 增加点击区域 */
+    padding: 5px;
     margin: 0;
     opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: all 0.3s ease;
     visibility: hidden;
     display: flex;
     align-items: center;
@@ -628,21 +1036,23 @@ body::before {
 
 .copy-message-button:hover {
     opacity: 1;
+    transform: translateY(-2px);
 }
 
 .copy-message-button img {
-    width: 20px;  /* 增大图标尺寸 */
-    height: 20px; /* 增大图标尺寸 */
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%) opacity(0.8);
-    transition: filter 0.2s ease;
+    width: 20px;
+    height: 20px;
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%) opacity(0.8);
+    transition: all 0.3s ease;
 }
 
 .copy-message-button:hover img {
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%) opacity(1);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%) opacity(1);
+    transform: scale(1.1);
 }
 
 .copy-message-button .copy-feedback {
-    font-size: 0.9em;  /* 增大反馈文字 */
+    font-size: 0.9em;
     margin-left: 6px;
     color: var(--accent-blue-primary);
 }
@@ -654,8 +1064,15 @@ body::before {
     position: relative;
     margin: 15px 0;
     border-radius: 8px;
-    overflow: hidden; /* 隐藏溢出部分 */
+    overflow: hidden;
     border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: all 0.3s ease;
+}
+
+.message.bot pre:hover {
+    box-shadow: 0 4px 12px var(--shadow-color);
+    transform: translateY(-2px);
 }
 
 .message.bot pre code {
@@ -667,7 +1084,7 @@ body::before {
     color: inherit;
     padding: 1em;
     overflow-x: auto;
-    border-top: 1px solid #e0e0e0; /* 增加顶部边框作为过渡 */
+    border-top: 1px solid #e0e0e0;
 }
 
 /* 代码块标题栏 */
@@ -676,10 +1093,11 @@ body::before {
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background-color: #f9f9f9; /* 浅灰色背景 */
-    border-bottom: none; /* 删除底部边框 */
+    background-color: #f0f0f0;
+    border-bottom: none;
     height: 40px;
     box-sizing: border-box;
+    background: linear-gradient(to right, #f0f0f0, #f5f5f5);
 }
 
 /* 代码类型标签 */
@@ -689,12 +1107,22 @@ body::before {
     font-family: 'Segoe UI', sans-serif;
     user-select: none;
     font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.code-type-label::before {
+    content: '</>';
+    margin-right: 5px;
+    font-size: 0.9em;
+    color: var(--accent-blue-secondary);
+    font-weight: bold;
 }
 
 /* 代码块顶部按钮栏 */
 .code-buttons-container {
     display: flex;
-    gap: 12px; /* 按钮间距 */
+    gap: 12px;
     align-items: center;
 }
 
@@ -710,17 +1138,24 @@ body::before {
     margin: 0;
     width: 20px;
     height: 20px;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
 .copy-code-button img, .preview-html-button img {
     width: 18px;
     height: 18px;
     opacity: 0.6;
-    transition: opacity 0.2s ease;
+    transition: all 0.3s ease;
+}
+
+.copy-code-button:hover, .preview-html-button:hover {
+    transform: translateY(-1px);
 }
 
 .copy-code-button:hover img, .preview-html-button:hover img {
     opacity: 1;
+    transform: scale(1.1);
 }
 
 /* --- HTML预览弹窗样式 --- */
@@ -730,32 +1165,52 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    animation: fadeIn 0.3s ease;
 }
 
-/* 其他HTML预览相关样式保持不变 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
 .html-preview-container {
     width: 80%;
     max-width: 900px;
     height: 80%;
     background-color: white;
-    border-radius: 8px;
+    border-radius: 12px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
+    animation: scaleIn 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+    }
+    to {
+        transform: scale(1);
+    }
 }
 
 .html-preview-title {
     padding: 12px 16px;
-    background-color: #f5f9ff;
-    color: var(--accent-blue-primary);
+    background: linear-gradient(135deg, var(--accent-blue-primary), var(--accent-blue-secondary));
+    color: white;
     font-weight: 500;
-    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -766,13 +1221,14 @@ body::before {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: white;
     line-height: 1;
     padding: 0 4px;
+    transition: all 0.3s ease;
 }
 
 .html-preview-close:hover {
-    color: var(--accent-blue-primary);
+    transform: scale(1.2);
 }
 
 .html-preview-frame {
@@ -834,23 +1290,41 @@ body::before {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
     height: 100%;
-    box-shadow: 0 2px 5px var(--shadow-color);
+    box-shadow: 0 2px 8px var(--shadow-color);
+    position: relative;
+}
+
+.prompt-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary));
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .prompt-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px var(--shadow-color);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(10, 77, 163, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-color: var(--accent-blue-primary);
+}
+
+.prompt-card:hover::before {
+    opacity: 1;
 }
 
 .prompt-card-header {
     padding: 12px 15px;
     border-bottom: 1px solid var(--border-color);
-    background-color: #f5f9ff;
+    background: linear-gradient(135deg, #f5f9ff, #eaf3ff);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -865,7 +1339,12 @@ body::before {
 .agent-icon {
     width: 18px;
     height: 18px;
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%);
+    transition: transform 0.3s ease;
+}
+
+.prompt-card:hover .agent-icon {
+    transform: rotate(15deg) scale(1.1);
 }
 
 .agent-badge span {
@@ -884,7 +1363,7 @@ body::before {
     padding: 5px;
     border-radius: 4px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -892,22 +1371,36 @@ body::before {
 
 .copy-prompt-btn:hover {
     background-color: rgba(33, 150, 243, 0.1);
+    transform: translateY(-2px);
 }
 
 .copy-prompt-btn img {
     width: 18px;
     height: 18px;
-    filter: invert(40%) sepia(20%) saturate(500%) hue-rotate(180deg) brightness(90%) contrast(85%);
-    transition: filter 0.2s ease;
+    filter: invert(40%) sepia(20%) saturate(500%) hue-rotate(200deg) brightness(90%) contrast(85%);
+    transition: all 0.3s ease;
 }
 
 .copy-prompt-btn:hover img {
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%);
+    transform: scale(1.1);
 }
 
 .prompt-card-content {
     padding: 15px;
     flex-grow: 1;
+    position: relative;
+}
+
+.prompt-card-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background: linear-gradient(to bottom, transparent, white);
+    pointer-events: none;
 }
 
 .prompt-card-content p {
@@ -925,23 +1418,42 @@ body::before {
     padding: 10px 15px 15px;
     display: flex;
     justify-content: flex-end;
+    position: relative;
+    z-index: 2;
 }
 
 .use-prompt-btn {
-    background-color: var(--accent-blue-primary);
+    background: linear-gradient(135deg, var(--accent-blue-primary), var(--accent-blue-secondary));
     color: white;
     border: none;
-    border-radius: 5px;
-    padding: 8px 12px;
+    border-radius: 6px;
+    padding: 8px 15px;
     font-size: 0.85rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     font-weight: 500;
+    position: relative;
+    overflow: hidden;
+}
+
+.use-prompt-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.7s ease;
 }
 
 .use-prompt-btn:hover {
-    background-color: var(--accent-blue-secondary);
-    box-shadow: 0 0 10px var(--glow-color);
+    box-shadow: 0 4px 12px var(--glow-color);
+    transform: translateY(-2px);
+}
+
+.use-prompt-btn:hover::before {
+    left: 100%;
 }
 
 /* --- 项目介绍区域样式 --- */
@@ -950,27 +1462,66 @@ body::before {
     align-items: center;
     gap: 30px;
     margin-bottom: 40px;
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.8);
     border-radius: 16px;
     padding: 30px;
-    box-shadow: 0 2px 10px var(--shadow-color);
+    box-shadow: 0 4px 15px var(--shadow-color);
     border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.intro-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary), var(--accent-blue-tertiary));
+}
+
+.intro-hero:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px var(--shadow-color);
 }
 
 .intro-logo-container {
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
 }
 
 .intro-logo {
     width: 120px;
     height: 120px;
     border-radius: 12px;
-    box-shadow: 0 2px 10px var(--shadow-color);
+    box-shadow: 0 4px 15px var(--shadow-color);
     border: 2px solid var(--accent-blue-primary);
+    transition: all 0.3s ease;
+    animation: floating 3s infinite alternate ease-in-out;
+}
+
+@keyframes floating {
+    0% {
+        transform: translateY(0) rotate(0);
+    }
+    100% {
+        transform: translateY(-5px) rotate(2deg);
+    }
+}
+
+.intro-logo:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 25px var(--glow-color);
+    border-color: var(--accent-blue-secondary);
 }
 
 .intro-main {
     flex-grow: 1;
+    position: relative;
+    z-index: 2;
 }
 
 .intro-main h1 {
@@ -978,6 +1529,19 @@ body::before {
     margin-bottom: 15px;
     color: var(--accent-blue-primary);
     font-size: 1.8em;
+    position: relative;
+    display: inline-block;
+}
+
+.intro-main h1::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary));
+    border-radius: 3px;
 }
 
 .intro-description {
@@ -992,6 +1556,18 @@ body::before {
     margin: 30px 0 20px 0;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--border-color);
+    position: relative;
+}
+
+.agents-title::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-blue-primary), var(--accent-blue-secondary));
+    border-radius: 3px;
 }
 
 .agent-cards {
@@ -1006,20 +1582,37 @@ body::before {
     border: 1px solid var(--border-color);
     border-radius: 12px;
     overflow: hidden;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 5px var(--shadow-color);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    position: relative;
+}
+
+.agent-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: linear-gradient(to bottom, var(--accent-blue-primary), var(--accent-blue-secondary));
+    transition: height 0.5s ease;
+}
+
+.agent-card:hover::before {
+    height: 100%;
 }
 
 .agent-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px var(--shadow-color);
+    transform: translateY(-5px) translateX(2px);
+    box-shadow: 0 5px 15px rgba(10, 77, 163, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     border-color: var(--accent-blue-primary);
 }
 
 .agent-card-header {
     padding: 15px;
     border-bottom: 1px solid var(--border-color);
-    background-color: #f5f9ff;
+    background: linear-gradient(135deg, #f5f9ff, #eaf3ff);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -1028,7 +1621,12 @@ body::before {
 .agent-intro-icon {
     width: 24px;
     height: 24px;
-    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(190deg) brightness(90%) contrast(95%);
+    filter: invert(30%) sepia(90%) saturate(1000%) hue-rotate(200deg) brightness(90%) contrast(95%);
+    transition: transform 0.3s ease;
+}
+
+.agent-card:hover .agent-intro-icon {
+    transform: rotate(15deg) scale(1.2);
 }
 
 .agent-card-header h3 {
@@ -1045,4 +1643,9 @@ body::before {
     margin: 0;
     line-height: 1.5;
     color: var(--text-primary);
+    transition: transform 0.3s ease;
+}
+
+.agent-card:hover .agent-card-content p {
+    transform: translateX(5px);
 }

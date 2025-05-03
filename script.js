@@ -997,6 +997,333 @@ function setupNavigation() {
     });
 }
 
+// 添加 anime.js 动画效果
+function initAnimeEffects() {
+    // 导航项的悬停动画
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('mouseenter', () => {
+            anime({
+                targets: item.querySelector('.nav-icon'),
+                rotate: '15deg',
+                scale: 1.1,
+                duration: 300,
+                easing: 'easeOutElastic(1, .6)'
+            });
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            anime({
+                targets: item.querySelector('.nav-icon'),
+                rotate: '0deg',
+                scale: 1,
+                duration: 400,
+                easing: 'easeOutElastic(1, .6)'
+            });
+        });
+    });
+
+    // 消息气泡入场动画
+    function animateMessages() {
+        const messages = document.querySelectorAll('.message');
+        anime({
+            targets: messages,
+            opacity: [0, 1],
+            translateY: [20, 0],
+            easing: 'easeOutExpo',
+            duration: 600,
+            delay: anime.stagger(150)
+        });
+    }
+    animateMessages(); // 运行一次初始动画
+    
+    // 消息发送后的动画效果
+    const originalAddMessage = addMessage;
+    addMessage = function(sender, text, save = true) {
+        originalAddMessage(sender, text, save);
+        const lastMessage = messageList.lastElementChild;
+        if (lastMessage) {
+            anime({
+                targets: lastMessage,
+                opacity: [0, 1],
+                translateY: [20, 0],
+                easing: 'easeOutExpo',
+                duration: 600
+            });
+        }
+    };
+    
+    // Agent卡片的悬停动画
+    const agentCards = document.querySelectorAll('.agent-card, .prompt-card');
+    agentCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            anime({
+                targets: card,
+                translateY: [0, -5],
+                boxShadow: ['0 2px 8px rgba(10, 77, 163, 0.15)', '0 8px 20px rgba(10, 77, 163, 0.15)'],
+                duration: 500,
+                easing: 'easeOutElastic(1, .6)'
+            });
+            
+            // 图标动画
+            const icon = card.querySelector('.agent-icon, .agent-intro-icon');
+            if (icon) {
+                anime({
+                    targets: icon,
+                    rotate: '15deg',
+                    scale: 1.2,
+                    duration: 500,
+                    easing: 'easeOutElastic(1, .6)'
+                });
+            }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            anime({
+                targets: card,
+                translateY: [-5, 0],
+                boxShadow: ['0 8px 20px rgba(10, 77, 163, 0.15)', '0 2px 8px rgba(10, 77, 163, 0.15)'],
+                duration: 600,
+                easing: 'easeOutElastic(1, .6)'
+            });
+            
+            // 图标恢复
+            const icon = card.querySelector('.agent-icon, .agent-intro-icon');
+            if (icon) {
+                anime({
+                    targets: icon,
+                    rotate: '0deg',
+                    scale: 1,
+                    duration: 600,
+                    easing: 'easeOutElastic(1, .6)'
+                });
+            }
+        });
+    });
+    
+    // 水波纹点击效果
+    const clickableElements = document.querySelectorAll(
+        '.nav-item, button, .agent-card, .prompt-card, .use-prompt-btn, .copy-prompt-btn'
+    );
+    clickableElements.forEach(el => {
+        el.addEventListener('click', (e) => {
+            const rect = el.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple-effect';
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            
+            el.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+    });
+    
+    // Logo 浮动动画
+    const logo = document.querySelector('.intro-logo');
+    if (logo) {
+        anime({
+            targets: logo,
+            translateY: [0, -5],
+            rotate: [0, 2],
+            loop: true,
+            direction: 'alternate',
+            easing: 'easeInOutQuad',
+            duration: 3000
+        });
+    }
+    
+    // 思考指示器动画增强
+    const originalShowThinkingIndicator = showThinkingIndicator;
+    showThinkingIndicator = function() {
+        originalShowThinkingIndicator();
+        if (thinkingIndicatorElement) {
+            const dots = thinkingIndicatorElement.querySelectorAll('span');
+            anime({
+                targets: dots,
+                scale: [0, 1],
+                opacity: [0, 1],
+                delay: anime.stagger(120),
+                loop: true,
+                direction: 'alternate',
+                easing: 'easeInOutQuad',
+                duration: 700
+            });
+        }
+    };
+    
+    // 发送按钮和附件按钮动画
+    const actionButtons = document.querySelectorAll('.input-action-button');
+    actionButtons.forEach(button => {
+        button.addEventListener('mouseenter', () => {
+            anime({
+                targets: button,
+                translateY: [0, -2],
+                duration: 300,
+                easing: 'easeOutElastic(1, .6)'
+            });
+            
+            anime({
+                targets: button.querySelector('img'),
+                scale: 1.1,
+                duration: 300,
+                easing: 'easeOutElastic(1, .6)'
+            });
+        });
+        
+        button.addEventListener('mouseleave', () => {
+            anime({
+                targets: button,
+                translateY: [-2, 0],
+                duration: 400,
+                easing: 'easeOutElastic(1, .6)'
+            });
+            
+            anime({
+                targets: button.querySelector('img'),
+                scale: 1,
+                duration: 400,
+                easing: 'easeOutElastic(1, .6)'
+            });
+        });
+    });
+    
+    // 新对话按钮发光效果
+    const newChatButton = document.getElementById('new-chat-button');
+    if (newChatButton) {
+        anime({
+            targets: newChatButton,
+            boxShadow: [
+                '0 4px 12px rgba(74, 148, 241, 0.2)',
+                '0 4px 12px rgba(74, 148, 241, 0.5)',
+                '0 4px 12px rgba(74, 148, 241, 0.2)'
+            ],
+            duration: 2000,
+            loop: true,
+            easing: 'easeInOutQuad'
+        });
+    }
+}
+
+// --- 水波纹动画功能 ---
+function createRipple(x, y) {
+    const rippleContainer = document.querySelector('.water-ripple-container');
+    if (!rippleContainer) return;
+    
+    // 使用池中现有的水波纹元素或创建新元素
+    let ripple = rippleContainer.querySelector('.water-ripple:not(.active)');
+    if (!ripple) {
+        ripple = document.createElement('div');
+        ripple.className = 'water-ripple';
+        rippleContainer.appendChild(ripple);
+    }
+    
+    // 设置波纹位置和基本样式
+    ripple.style.left = `${x}px`;
+    ripple.style.top = `${y}px`;
+    ripple.style.width = '0';
+    ripple.style.height = '0';
+    ripple.style.opacity = '0.8';
+    
+    // 标记为活跃状态
+    ripple.classList.add('active');
+    
+    // 创建随机大小的波纹
+    const size = Math.random() * 200 + 100; // 100-300px 范围内的随机大小
+    
+    // 使用anime.js设置动画
+    anime({
+        targets: ripple,
+        width: size,
+        height: size,
+        left: x - size/2,
+        top: y - size/2,
+        opacity: 0,
+        easing: 'easeOutQuad',
+        duration: 3000, // 更长的持续时间，使水波纹效果更加舒缓
+        complete: function() {
+            // 动画完成后重置并标记为非活跃
+            ripple.classList.remove('active');
+        }
+    });
+}
+
+// 在初始化动画效果中添加水波纹触发
+function setupWaterRippleEffects() {
+    document.addEventListener('click', (e) => {
+        // 只在页面主要区域产生波纹，不包括侧边栏
+        if (!e.target.closest('.sidebar')) {
+            createRipple(e.clientX, e.clientY);
+        }
+    });
+    
+    // 创建随机的水波纹效果
+    function createRandomRipple() {
+        if (Math.random() > 0.7) { // 30%的几率创建随机波纹
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            // 避开侧边栏区域
+            const x = Math.random() * (width - 300) + 300; // 侧边栏宽度约为300px
+            const y = Math.random() * height;
+            
+            createRipple(x, y);
+        }
+        
+        // 每2-7秒随机调用一次
+        const timeout = Math.random() * 5000 + 2000;
+        setTimeout(createRandomRipple, timeout);
+    }
+    
+    // 启动随机波纹生成
+    createRandomRipple();
+    
+    // 输入和互动时也产生波纹效果
+    userInput.addEventListener('focus', () => {
+        const rect = userInput.getBoundingClientRect();
+        createRipple(rect.left + rect.width / 2, rect.top);
+    });
+    
+    // 当切换导航项时产生水波纹
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            const rect = item.getBoundingClientRect();
+            setTimeout(() => {
+                createRipple(rect.right + 50, rect.top + rect.height / 2);
+            }, 100);
+        });
+    });
+}
+
+// 添加水波纹效果的CSS
+function addRippleStyle() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .ripple-effect {
+            position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: scale(0);
+            animation: ripple 0.6s ease-out;
+            z-index: 0;
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
 // 处理发送按钮点击事件
 sendButton.addEventListener('click', () => {
     const message = userInput.value.trim();
@@ -1070,7 +1397,16 @@ function initializeApp() {
     // 设置导航功能
     setupNavigation();
     
-    console.log("App initialized.");
+    // 添加水波纹样式
+    addRippleStyle();
+    
+    // 初始化动画效果
+    initAnimeEffects();
+    
+    // 初始化水波纹效果
+    setupWaterRippleEffects();
+    
+    console.log("App initialized with animations and water ripple effects.");
 }
 
 // Run initialization when the DOM is ready
