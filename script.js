@@ -741,7 +741,29 @@ function showThinkingIndicator() {
     if (thinkingIndicatorElement) return;
     thinkingIndicatorElement = document.createElement('div');
     thinkingIndicatorElement.className = 'thinking-indicator';
-    thinkingIndicatorElement.innerHTML = '<span></span><span></span><span></span>';
+    
+    // 添加动态圆点指示
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'thinking-dots';
+    dotsContainer.innerHTML = '<span></span><span></span><span></span>';
+    
+    // 添加美化后的等待提示文字
+    const waitText = document.createElement('div');
+    waitText.className = 'waiting-text';
+    
+    // 使用stethoscope.svg替代不存在的clock.svg
+    const waitingIcon = document.createElement('img');
+    waitingIcon.src = 'image/rotate-cw.svg'; // 使用医疗相关的图标，更符合医疗健康主题
+    waitingIcon.alt = '等待';
+    
+    // 组合图标和文字
+    waitText.appendChild(waitingIcon);
+    waitText.appendChild(document.createTextNode('Agent回复较慢请在本页面耐心等待'));
+    
+    // 将两个元素添加到指示器中
+    thinkingIndicatorElement.appendChild(dotsContainer);
+    thinkingIndicatorElement.appendChild(waitText);
+    
     messageList.appendChild(thinkingIndicatorElement); // Append to the end
     // Scroll immediately after adding indicator
     scrollToBottom(); // Call the updated scroll function
