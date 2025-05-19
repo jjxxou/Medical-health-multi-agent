@@ -365,7 +365,7 @@ function addMessage(sender, text, save = true) {
                     // 创建iframe来安全地渲染HTML
                     const previewFrame = document.createElement('iframe');
                     previewFrame.className = 'html-preview-frame';
-                    previewFrame.sandbox = 'allow-same-origin';
+                    previewFrame.sandbox = 'allow-scripts allow-same-origin'; // Crucial for ECharts and other scripts
                     
                     // 将元素添加到DOM
                     previewContainer.appendChild(titleBar);
@@ -373,27 +373,26 @@ function addMessage(sender, text, save = true) {
                     previewOverlay.appendChild(previewContainer);
                     document.body.appendChild(previewOverlay);
                     
-                    // 将HTML写入iframe
-                    const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-                    frameDoc.open();
-                    frameDoc.write(htmlCode);
-                    frameDoc.close();
+                    // 直接将HTML代码设置到iframe的srcdoc属性中
+                    previewFrame.srcdoc = htmlCode;
                     
                     // 处理关闭按钮点击
                     closeButton.addEventListener('click', () => {
                         document.body.removeChild(previewOverlay);
+                        document.removeEventListener('keydown', handleEsc);
                     });
                     
                     // 点击遮罩层也可以关闭预览
-                    previewOverlay.addEventListener('click', (e) => {
-                        if (e.target === previewOverlay) {
+                    previewOverlay.addEventListener('click', (event) => {
+                        if (event.target === previewOverlay) {
                             document.body.removeChild(previewOverlay);
+                            document.removeEventListener('keydown', handleEsc);
                         }
                     });
                     
                     // 按ESC键关闭预览
-                    const handleEsc = (e) => {
-                        if (e.key === 'Escape') {
+                    const handleEsc = (event) => {
+                        if (event.key === 'Escape') {
                             document.body.removeChild(previewOverlay);
                             document.removeEventListener('keydown', handleEsc);
                         }
@@ -788,79 +787,113 @@ function setupHtmlPreview(messageBubble) {
             codeElement.className.includes('lang-html') || 
             codeElement.className.includes('html'))) {
             
-            // 添加预览按钮
+            // 确保按钮只添加一次，检查按钮是否已存在于正确的容器中
+            const buttonsContainer = pre.querySelector('.code-header .code-buttons-container');
+            if (buttonsContainer && buttonsContainer.querySelector('.preview-html-button')) {
+                return; // 如果按钮已存在，则不重复添加
+            }
+            // 如果是在旧的直接添加到pre的逻辑下，也检查一下
+            if (!buttonsContainer && pre.querySelector('.preview-html-button')) {
+                return;
+            }
+
             const previewButton = document.createElement('button');
             previewButton.className = 'preview-html-button';
             previewButton.title = '预览HTML';
             
-            // 创建eye图标
             const eyeIcon = document.createElement('img');
             eyeIcon.src = 'image/eye.svg';
             eyeIcon.alt = '预览';
             previewButton.appendChild(eyeIcon);
             
-            // 将按钮添加到pre元素中
-            pre.appendChild(previewButton);
+            // 将按钮添加到代码块的标题栏的按钮容器中
+            if (buttonsContainer) {
+                buttonsContainer.appendChild(previewButton);
+            } else {
+                pre.appendChild(previewButton); // Original logic from user's version
+            }
             
-            // 添加点击事件处理
             previewButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 
-                // 获取HTML代码
-                const htmlCode = codeElement.innerText;
+                const rawHtmlCode = codeElement.innerText;
                 
-                // 创建预览弹窗
                 const previewOverlay = document.createElement('div');
                 previewOverlay.className = 'html-preview-overlay';
-                
-                // 创建内容容器
                 const previewContainer = document.createElement('div');
                 previewContainer.className = 'html-preview-container';
-                
-                // 创建标题栏
                 const titleBar = document.createElement('div');
                 titleBar.className = 'html-preview-title';
                 titleBar.innerHTML = '<span>HTML 预览</span>';
-                
-                // 添加关闭按钮
                 const closeButton = document.createElement('button');
                 closeButton.className = 'html-preview-close';
                 closeButton.innerHTML = '&times;';
                 closeButton.title = '关闭预览';
                 titleBar.appendChild(closeButton);
                 
-                // 创建iframe来安全地渲染HTML
                 const previewFrame = document.createElement('iframe');
                 previewFrame.className = 'html-preview-frame';
-                previewFrame.sandbox = 'allow-same-origin';
+                previewFrame.sandbox = 'allow-scripts allow-same-origin'; // Crucial for ECharts and other scripts
                 
-                // 将元素添加到DOM
                 previewContainer.appendChild(titleBar);
                 previewContainer.appendChild(previewFrame);
                 previewOverlay.appendChild(previewContainer);
                 document.body.appendChild(previewOverlay);
                 
-                // 将HTML写入iframe
                 const frameDoc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-                frameDoc.open();
-                frameDoc.write(htmlCode);
-                frameDoc.close();
+
+                let htmlToLoad = rawHtmlCode;
+                const scriptsToExecute = [];
+
+                // Detect ECharts and if ECharts library is missing
+                const isEcharts = htmlToLoad.includes('echarts.init') || htmlToLoad.includes('echarts.');
+                const hasEchartsLib = htmlToLoad.includes('echarts.min.js') || htmlToLoad.includes('echarts.js');
+
+                // Separate script tags from the main HTML content
+                const scriptTagRegex = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
+                htmlToLoad = htmlToLoad.replace(scriptTagRegex, (match) => {
+                    scriptsToExecute.push(match);
+                    return '<!-- script placeholder -->'; // Replace script with a placeholder
+                });
                 
-                // 处理关闭按钮点击
+                frameDoc.open();
+                frameDoc.write('<!DOCTYPE html><html><head><meta charset="UTF-8">');
+                // Inject ECharts library if it's an ECharts snippet and the library is not already included
+                if (isEcharts && !hasEchartsLib) {
+                    frameDoc.write('<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"><\/script>');
+                }
+                frameDoc.write('</head><body>');
+                frameDoc.write(htmlToLoad); // Write the HTML content (without original scripts)
+                frameDoc.write('</body></html>');
+                frameDoc.close();
+
+                // Execute the collected scripts after the iframe's main content has been loaded and parsed
+                previewFrame.onload = () => {
+                    scriptsToExecute.forEach(scriptContent => {
+                        const scriptElement = frameDoc.createElement('script');
+                        const srcMatch = scriptContent.match(/src=['\"]([^\'\"]+)['\"]/i);
+                        if (srcMatch && srcMatch[1]) {
+                            scriptElement.src = srcMatch[1];
+                        } else {
+                            const inlineScriptMatch = scriptContent.match(/<script[^>]*>([\s\S]*?)<\/script>/i);
+                            if (inlineScriptMatch && inlineScriptMatch[1]) {
+                                scriptElement.textContent = inlineScriptMatch[1];
+                            }
+                        }
+                        frameDoc.body.appendChild(scriptElement); 
+                    });
+                };
+                
                 closeButton.addEventListener('click', () => {
                     document.body.removeChild(previewOverlay);
                 });
-                
-                // 点击遮罩层也可以关闭预览
-                previewOverlay.addEventListener('click', (e) => {
-                    if (e.target === previewOverlay) {
+                previewOverlay.addEventListener('click', (ev) => {
+                    if (ev.target === previewOverlay) {
                         document.body.removeChild(previewOverlay);
                     }
                 });
-                
-                // 按ESC键关闭预览
-                const handleEsc = (e) => {
-                    if (e.key === 'Escape') {
+                const handleEsc = (ev) => {
+                    if (ev.key === 'Escape') {
                         document.body.removeChild(previewOverlay);
                         document.removeEventListener('keydown', handleEsc);
                     }
