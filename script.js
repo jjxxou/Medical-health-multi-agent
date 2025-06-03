@@ -10,7 +10,7 @@ const sectionIntro = document.getElementById('section-intro');
 const sectionPrompts = document.getElementById('section-prompts');
 
 // --- 配置你的 Coze API 信息 ---
-const apiKey = "pat_vZJm4d1usMjMURWIRWkS8Q6X2sRg9MECXHgmJyaRg7f0djBh831X3DNSEhWAqvXx"; // 替换为你的 API Key
+const apiKey = "pat_TujwDEa6Nt28YbjfE2AHwjmxwxs0obREbxJGJ73vH96uDPOMkYxpq5g1NOwcvzTA"; // 替换为你的 API Key
 const botId = "7493891125212725302"; // 替换为你的 Bot ID
 const cozeApiUrl = "https://api.coze.cn/open_api/v2/chat";
 // ------------------------------
